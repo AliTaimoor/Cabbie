@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "852262022369",
+    "firebase_url": "https://cabbie-d215f.firebaseio.com",
+    "project_id": "cabbie-d215f",
+    "storage_bucket": "cabbie-d215f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:852262022369:android:f9033bd8c6ebf289",
+        "android_client_info": {
+          "package_name": "com.cabbie.hat.cabbie"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "852262022369-e6jgk70iv6r544v3dm7tjt0kaiklpqvq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cabbie.hat.cabbie",
+            "certificate_hash": "a0c8bc53755c45e839689e2378be90d9c2b2b876"
+          }
+        },
+        {
+          "client_id": "852262022369-2dbeo51djc4rnrdikqsp5ner0rtk4f05.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZRCSq0YGZIMiJIYCwbNB1srBiji0VERw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "852262022369-2dbeo51djc4rnrdikqsp5ner0rtk4f05.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
