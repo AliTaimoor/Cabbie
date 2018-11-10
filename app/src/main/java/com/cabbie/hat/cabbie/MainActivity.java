@@ -192,6 +192,9 @@ public class MainActivity extends AppCompatActivity {
 
                         dialogInterface.dismiss();
 
+                        logIn.setEnabled(false);
+                        register.setEnabled(false);
+
                         if (editEmail.getText().toString().isEmpty()) {
                             Snackbar.make(rootLayout, "Please enter email address", Snackbar.LENGTH_SHORT)
                                     .show();
@@ -216,6 +219,8 @@ public class MainActivity extends AppCompatActivity {
                             public void onFailure(@NonNull Exception e) {
                                 Snackbar.make(rootLayout, "Sign in failed: " + e.getMessage(), Snackbar.LENGTH_SHORT)
                                         .show();
+                                logIn.setEnabled(true);
+                                register.setEnabled(true);
                             }
                         });
 

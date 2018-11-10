@@ -9,4 +9,7 @@
     <string name="password">Password</string>
     <string name="name">Name</string>
     <string name="phone_number">Phone Number</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_welcome">Map</string>
+    <string name="book_a_ride">Book a ride</string>
 </resources>

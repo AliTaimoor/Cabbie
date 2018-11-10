@@ -5,6 +5,7 @@ android {
     }
     compileSdkVersion 27
     defaultConfig {
+        multiDexEnabled true
         applicationId "com.cabbie.hat.cabbie"
         minSdkVersion 15
         targetSdkVersion 27
@@ -30,10 +31,17 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.1'
     //Libraries
     implementation 'com.google.firebase:firebase-auth:16.0.1'
+    implementation 'com.firebase:geofire-android:2.1.2'
     implementation 'com.google.firebase:firebase-database:16.0.1'
+    implementation 'com.google.android.gms:play-services-maps:16.0.0'
+    implementation 'com.google.android.gms:play-services:12.0.1'
+    implementation 'com.firebase:geofire-android:2.1.2'
     implementation 'uk.co.chrisjenx:calligraphy:2.3.0'
     implementation 'com.android.support:cardview-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.rengwuxian.materialedittext:library:2.1.4'
+    implementation 'com.android.support:multidex:1.0.3'
+
 }
 apply plugin: 'com.google.gms.google-services'
+com.google.gms.googleservices.GoogleServicesPlugin.config.disableVersionCheck = true
