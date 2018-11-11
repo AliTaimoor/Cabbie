@@ -8,16 +8,27 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
-import com.google.android.gms.maps.CameraUpdate;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,6 +37,9 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     LocationManager locationManager;
+    DatabaseReference drivers = FirebaseDatabase.getInstance().getReference("Drivers");
+    GeoFire geoFire = new GeoFire(drivers);
+    Marker marker;
     String detail;
 
     @Override
@@ -52,17 +66,28 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback {
             @Override
             public void onLocationChanged(Location location) {
 
-                double lat = location.getLatitude();
-                double lng = location.getLongitude();
+                final double lat = location.getLatitude();
+                final double lng = location.getLongitude();
 
                 LatLng latlng = new LatLng(lat, lng);
+
+                geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(lat, lng), new GeoFire.CompletionListener() {
+                    @Override
+                    public void onComplete(String key, DatabaseError error) {
+                        if (marker != null) marker.remove();
+                        marker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
+                                .position(new LatLng(lat, lng)).title("Captain"));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), 16.0f));
+                        rotateMarker(marker, -360, mMap);
+
+                    }
+                });
 
                 Geocoder geocoder = new Geocoder(getApplicationContext());
                 try {
                     List<Address>  address = geocoder.getFromLocation(lat, lng, 1);
                     detail = address.get(0).getLocality()+"";
                     detail+= address.get(0).getCountryName();
-                    mMap.addMarker(new MarkerOptions().position(latlng).title(detail));
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 16f));
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -84,6 +109,31 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback {
 
             }
         });
+    }
+
+    private void rotateMarker(final Marker marker, final float i, GoogleMap mMap) {
+
+        final Handler handler = new Handler();
+        final long start = SystemClock.uptimeMillis();
+        final float startRotation = marker.getRotation();
+        final long duration = 1500;
+        final Interpolator interpolator = new LinearInterpolator();
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = SystemClock.uptimeMillis() - start;
+                float t = interpolator.getInterpolation((float) elapsed/duration);
+                float rot = t*i+(1-t)*startRotation;
+                marker.setRotation(-rot > 180 ? rot/2:rot);
+
+                if(t < 1.0){
+                    handler.postDelayed(this, 16);
+                }
+
+            }
+        });
+
     }
 
 
