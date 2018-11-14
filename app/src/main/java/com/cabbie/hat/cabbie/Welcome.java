@@ -37,8 +37,8 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     LocationManager locationManager;
-    DatabaseReference drivers = FirebaseDatabase.getInstance().getReference("Drivers");
-    GeoFire geoFire = new GeoFire(drivers);
+    DatabaseReference drivers;
+    GeoFire geoFire;
     Marker marker;
     String detail;
 
@@ -70,6 +70,9 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback {
                 final double lng = location.getLongitude();
 
                 LatLng latlng = new LatLng(lat, lng);
+
+                drivers = FirebaseDatabase.getInstance().getReference("Drivers");
+                geoFire = new GeoFire(drivers);
 
                 geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(lat, lng), new GeoFire.CompletionListener() {
                     @Override
@@ -133,6 +136,18 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback {
 
             }
         });
+
+    }
+
+    @Override
+    protected void onStop() {
+
+        super.onStop();
+
+        drivers = FirebaseDatabase.getInstance().getReference("Drivers");
+        geoFire = new GeoFire(drivers);
+
+        geoFire.removeLocation((FirebaseAuth.getInstance().getCurrentUser().getUid()));
 
     }
 

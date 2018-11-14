@@ -12,4 +12,7 @@
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_welcome">Map</string>
     <string name="book_a_ride">Book a ride</string>
+    <string name="customer">Customer</string>
+    <string name="driver">Driver</string>
+    <string name="todo">TODO</string>
 </resources>
