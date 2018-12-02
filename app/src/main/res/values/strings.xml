@@ -15,4 +15,7 @@
     <string name="customer">Customer</string>
     <string name="driver">Driver</string>
     <string name="todo">TODO</string>
+    <string name="title_activity_map_for_driver">Map</string>
+    <string name="logout">Logout</string>
+    <string name="request_a_ride">Request a Ride</string>
 </resources>

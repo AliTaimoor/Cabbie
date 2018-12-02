@@ -35,11 +35,15 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDuOuUg-EpqimBYVlZLbCW7YgtWOoMBtXY" />
-        <activity android:name=".MainActivity"></activity>
-        <activity
-            android:name=".Welcome"
-            android:label="@string/title_activity_welcome" />
 
+        <activity android:name=".ForDriver" />
+        <activity
+            android:name=".MapForCustomer"
+            android:label="@string/title_activity_welcome" />
+        <activity android:name=".ForCustomer" />
+        <activity
+            android:name=".MapForDriver"
+            android:label="@string/title_activity_map_for_driver"></activity>
     </application>
 
 </manifest>

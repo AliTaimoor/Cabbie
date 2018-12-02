@@ -13,12 +13,6 @@ public class StartUpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        if(FirebaseAuth.getInstance().getCurrentUser() != null){
-            startActivity(new Intent(StartUpActivity.this, Welcome.class));
-            finish();
-            return;
-        }
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_up);
 
@@ -28,7 +22,7 @@ public class StartUpActivity extends AppCompatActivity {
         customerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(StartUpActivity.this, MainActivity.class));
+                startActivity(new Intent(StartUpActivity.this, ForCustomer.class));
                 finish();
                 return;
             }
@@ -37,7 +31,7 @@ public class StartUpActivity extends AppCompatActivity {
         driverButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(StartUpActivity.this, MainActivity.class));
+                startActivity(new Intent(StartUpActivity.this, ForDriver.class));
                 finish();
                 return;
             }
