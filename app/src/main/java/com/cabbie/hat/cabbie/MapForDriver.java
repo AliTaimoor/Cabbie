@@ -251,7 +251,7 @@ public class MapForDriver extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    @Override
+    /*@Override
     protected void onStop() {
         super.onStop();
 
@@ -266,6 +266,6 @@ public class MapForDriver extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-    }
+    }*/
 
 }

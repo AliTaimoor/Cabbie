@@ -84,8 +84,6 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
             @Override
             public void onClick(View view) {
 
-                request.setEnabled(false);
-
                 userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
                 geoFire.setLocation(userID, new GeoLocation(lastLocation.getLatitude(), lastLocation.getLongitude()), new GeoFire.CompletionListener() {
@@ -132,6 +130,7 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
                    driverRef.updateChildren(map);
 
                    getDriverLocation();
+
                }
             }
 
@@ -163,7 +162,7 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
 
     private void getDriverLocation() {
 
-        DatabaseReference driverLocationRef = FirebaseDatabase.getInstance().getReference().child("Drivers Working").child(driverFoundId).child("l");
+        DatabaseReference driverLocationRef = FirebaseDatabase.getInstance().getReference().child("Working Drivers").child(driverFoundId).child("l");
         driverLocationRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -171,6 +170,8 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
                     List<Object> map = (List<Object>) dataSnapshot.getValue();
                     double locationLat = 0;
                     double locationLng = 0;
+
+                    request.setText("Driver Found!");
 
                     if(map.get(0) != null){
                         locationLat = Double.parseDouble(map.get(0).toString());
@@ -192,7 +193,9 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
 
                     float distance = loc1.distanceTo(loc2);
 
-                    request.setText("Driver Found: " + String.valueOf(distance));
+                    if(distance < 100) request.setText("Driver has arrived!");
+
+                    else request.setText("Driver Found: " + String.valueOf(distance));
 
                     driverMarker = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("Your Driver"));
 
@@ -286,10 +289,10 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
 
     }
 
-    @Override
+    /*@Override
     protected void onStop() {
         super.onStop();
 
-    }
+    }*/
 
 }
