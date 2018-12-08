@@ -22,7 +22,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -32,6 +34,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
+
 
 public class MapForDriver extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
@@ -74,13 +77,21 @@ public class MapForDriver extends FragmentActivity implements OnMapReadyCallback
 
     private void getAssignedCustomer(){
         String driverId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference assignedCustomerRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverId).child("customerRideId");
+        final DatabaseReference assignedCustomerRef = FirebaseDatabase.getInstance().getReference().child("Users")
+                .child("Drivers").child(driverId).child("customerRideId");
         assignedCustomerRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
                     customerId = dataSnapshot.getValue().toString();
                     getAssignedCustomerPickUpLocation();
+                }else{
+                    customerId="";
+                    if (pickupLocationMarker != null){
+                        pickupLocationMarker.remove();
+                    }
+                    if(assignedCustomerPickUpLocationRefListener != null)
+                        assignedCustomerRef.removeEventListener(assignedCustomerPickUpLocationRefListener);
                 }
             }
 
@@ -89,16 +100,20 @@ public class MapForDriver extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
+    private Marker pickupLocationMarker;
+    private DatabaseReference assignedCustomerPickUpLocationRef;
+    private ValueEventListener assignedCustomerPickUpLocationRefListener;
 
     private void getAssignedCustomerPickUpLocation() {
 
-        DatabaseReference assignedCustomerPickUpLocationRef = FirebaseDatabase.getInstance().getReference().child("Customer Requests").child(customerId).child("l");
+        assignedCustomerPickUpLocationRef = FirebaseDatabase.getInstance().getReference()
+                .child("Customer Requests").child(customerId).child("l");
 
-        assignedCustomerPickUpLocationRef.addValueEventListener(new ValueEventListener() {
+        assignedCustomerPickUpLocationRefListener = assignedCustomerPickUpLocationRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                if(dataSnapshot.exists()) {
+                if(dataSnapshot.exists() && !customerId.equals("")) {
 
                     List<Object> map = (List<Object>) dataSnapshot.getValue();
 
@@ -114,7 +129,7 @@ public class MapForDriver extends FragmentActivity implements OnMapReadyCallback
 
                     LatLng driverLatLng = new LatLng(locationLat, locationLng);
 
-                    mMap.addMarker(new MarkerOptions().position(driverLatLng).title("Pick Up Location"));
+                    pickupLocationMarker = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("Pick Up Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.wait)));
                 }
             }
 
@@ -254,18 +269,13 @@ public class MapForDriver extends FragmentActivity implements OnMapReadyCallback
     /*@Override
     protected void onStop() {
         super.onStop();
-
         DatabaseReference refAvailable = FirebaseDatabase.getInstance().getReference("Available Drivers");
-
         GeoFire geoFire = new GeoFire(refAvailable);
-
         geoFire.removeLocation(userID, new GeoFire.CompletionListener() {
             @Override
             public void onComplete(String key, DatabaseError error) {
-
             }
         });
-
     }*/
 
 }

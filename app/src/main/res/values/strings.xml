@@ -18,4 +18,5 @@
     <string name="title_activity_map_for_driver">Map</string>
     <string name="logout">Logout</string>
     <string name="request_a_ride">Request a Ride</string>
+    <string name="settings">Settings</string>
 </resources>
