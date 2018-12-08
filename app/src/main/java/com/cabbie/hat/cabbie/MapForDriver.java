@@ -90,8 +90,12 @@ public class MapForDriver extends FragmentActivity implements OnMapReadyCallback
                     if (pickupLocationMarker != null){
                         pickupLocationMarker.remove();
                     }
+<<<<<<< HEAD
                     if(assignedCustomerPickUpLocationRefListener != null)
                         assignedCustomerRef.removeEventListener(assignedCustomerPickUpLocationRefListener);
+=======
+                    assignedCustomerRef.removeEventListener(assignedCustomerPickUpLocationRefListener);
+>>>>>>> 1d89a066530664f964a1a81a1fb9e656554ccd6b
                 }
             }
 
@@ -129,7 +133,11 @@ public class MapForDriver extends FragmentActivity implements OnMapReadyCallback
 
                     LatLng driverLatLng = new LatLng(locationLat, locationLng);
 
+<<<<<<< HEAD
                     pickupLocationMarker = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("Pick Up Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.wait)));
+=======
+                    pickupLocationMarker = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("Pick Up Location"));
+>>>>>>> 1d89a066530664f964a1a81a1fb9e656554ccd6b
                 }
             }
 

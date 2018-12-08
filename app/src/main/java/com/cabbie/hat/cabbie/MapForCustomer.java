@@ -108,6 +108,7 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
                         DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Users").child("Drivers").child(driverFoundId)
                                 .child("customerRideId");
                         ref.setValue(null);
+<<<<<<< HEAD
                         driverFoundId = null;
                     }
 
@@ -117,6 +118,22 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
                     geoFire.removeLocation(userID, new GeoFire.CompletionListener() {
                         @Override
                         public void onComplete(String key, DatabaseError error) {
+=======
+                    }
+
+
+                    userID=FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    geoFire.removeLocation(userID);
+
+                    if (driverMarker !=null){
+                        driverMarker.remove();
+                    }
+                    request.setText("Call Cabbie");
+
+                }else{
+                    requestBol=true;
+                userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+>>>>>>> 1d89a066530664f964a1a81a1fb9e656554ccd6b
 
                         }
                     });
@@ -148,6 +165,7 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
 
                 }
             }
+            }
         });
 
     }
@@ -171,12 +189,21 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
                     driverFound = true;
                     driverFoundId = key;
 
+<<<<<<< HEAD
                     DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference("Users").child("Drivers")
                             .child(driverFoundId);
                     String customerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
                     HashMap map = new HashMap();
                     map.put("customerRideId", customerId);
                     driverRef.updateChildren(map);
+=======
+                   DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference("Users").child("Drivers")
+                           .child(driverFoundId);
+                   String customerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                   HashMap map = new HashMap();
+                   map.put("customerRideId", customerId);
+                   driverRef.updateChildren(map);
+>>>>>>> 1d89a066530664f964a1a81a1fb9e656554ccd6b
 
                     getDriverLocation();
 
