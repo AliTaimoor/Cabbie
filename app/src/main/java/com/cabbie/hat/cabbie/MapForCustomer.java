@@ -1,6 +1,7 @@
 package com.cabbie.hat.cabbie;
 
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -9,8 +10,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -18,8 +21,12 @@ import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -50,8 +57,13 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
     private int radius = 1;
     private boolean driverFound = false;
     private String driverFoundId;
+    private String destination;
     private Marker driverMarker;
     private Marker pickUpMarker;
+
+    SupportMapFragment mapFragment;
+
+    final int LOCATION_REQUEST_CODE = 1;
 
 
     private boolean requestBol=false;
@@ -68,9 +80,18 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps_customer);
 
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(MapForCustomer.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+
+        }
+
+        else{
+            mapFragment.getMapAsync(this);
+        }
+
 
         logout = (Button) findViewById(R.id.logout);
         request = (Button) findViewById(R.id.request);
@@ -96,6 +117,22 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
             }
         });
 
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                // TODO: Get info about the selected place.
+                destination = place.getName().toString();
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+            }
+        });
+
         request.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -105,10 +142,9 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
                     driverLocationRef.removeEventListener(driverLocationRefListener);
 
                     if (driverFoundId != null){
-                        DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Users").child("Drivers").child(driverFoundId)
-                                .child("customerRideId");
-                        ref.setValue(null);
-<<<<<<< HEAD
+                        DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Users").child("Drivers").child(driverFoundId).child("customerRequest");
+                        ref.setValue(true);
+
                         driverFoundId = null;
                     }
 
@@ -118,27 +154,13 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
                     geoFire.removeLocation(userID, new GeoFire.CompletionListener() {
                         @Override
                         public void onComplete(String key, DatabaseError error) {
-=======
-                    }
-
-
-                    userID=FirebaseAuth.getInstance().getCurrentUser().getUid();
-                    geoFire.removeLocation(userID);
-
-                    if (driverMarker !=null){
-                        driverMarker.remove();
-                    }
-                    request.setText("Call Cabbie");
-
-                }else{
-                    requestBol=true;
-                userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
->>>>>>> 1d89a066530664f964a1a81a1fb9e656554ccd6b
 
                         }
+
                     });
 
-                    if (driverMarker !=null){
+
+                    if (driverMarker != null){
                         driverMarker.remove();
                     }
 
@@ -146,7 +168,8 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
 
                     request.setText("Call Cabbie");
 
-                }else{
+                }
+                else{
                     requestBol=true;
                     userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -166,7 +189,7 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
                 }
             }
             }
-        });
+        );
 
     }
 
@@ -189,21 +212,14 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
                     driverFound = true;
                     driverFoundId = key;
 
-<<<<<<< HEAD
+
                     DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference("Users").child("Drivers")
-                            .child(driverFoundId);
+                            .child(driverFoundId).child("customerRequest");
                     String customerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
                     HashMap map = new HashMap();
                     map.put("customerRideId", customerId);
+                    map.put("destination", destination);
                     driverRef.updateChildren(map);
-=======
-                   DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference("Users").child("Drivers")
-                           .child(driverFoundId);
-                   String customerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                   HashMap map = new HashMap();
-                   map.put("customerRideId", customerId);
-                   driverRef.updateChildren(map);
->>>>>>> 1d89a066530664f964a1a81a1fb9e656554ccd6b
 
                     getDriverLocation();
 
@@ -292,14 +308,9 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
         mMap = googleMap;
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+
+            ActivityCompat.requestPermissions(MapForCustomer.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+
         }
 
         buildGoogleApiClient();
@@ -343,14 +354,9 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
 
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+
+            ActivityCompat.requestPermissions(MapForCustomer.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
@@ -363,6 +369,24 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch(requestCode){
+
+            case LOCATION_REQUEST_CODE:
+                if(grantResults.length > 0  && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    mapFragment.getMapAsync(this);
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "Please provide the permission!", Toast.LENGTH_LONG).show();
+                }
+                break;
+
+        }
     }
 
     /*@Override
