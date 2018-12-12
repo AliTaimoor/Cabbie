@@ -50,7 +50,7 @@ public class MapForDriver extends FragmentActivity implements OnMapReadyCallback
     GoogleApiClient googleApiClient;
     Location lastLocation;
     LocationRequest locationRequest;
-    private Button logout;
+    private Button logout, settings;
 
     SupportMapFragment mapFragment;
 
@@ -86,6 +86,15 @@ public class MapForDriver extends FragmentActivity implements OnMapReadyCallback
         customerDestination = (TextView) findViewById(R.id.customerDestination);
 
         logout = (Button) findViewById(R.id.logout);
+        settings = (Button) findViewById(R.id.settings);
+
+        settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MapForDriver.this, DriverSettingsActivity.class));
+                return;
+            }
+        });
 
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
