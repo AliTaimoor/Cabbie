@@ -47,6 +47,32 @@
         android:background="@null"
         android:hint="Car"
         android:layout_marginBottom="20sp"/>
+    
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/radioGroup">
+        
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/faisal_movers"
+            android:id="@+id/faisalMovers"/>
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/jet"
+            android:id="@+id/uberJet"/>
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/helicopter"
+            android:id="@+id/uberHelicopter"/>
+        
+    </RadioGroup>
 
     <Button
         android:layout_width="match_parent"

@@ -108,13 +108,50 @@
             </LinearLayout>
 
         </LinearLayout>
-
-        <Button
+        
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/request"
-            android:text="@string/request_a_ride"
-            android:layout_gravity="bottom"/>
+            android:background="@android:color/white"
+            android:orientation="vertical"
+            android:layout_gravity="bottom">
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:id="@+id/radioGroup">
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/faisal_movers"
+                    android:id="@+id/faisalMovers"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/jet"
+                    android:id="@+id/uberJet"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/helicopter"
+                    android:id="@+id/uberHelicopter"/>
+
+            </RadioGroup>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/request"
+                android:text="@string/request_a_ride"
+                android:layout_gravity="bottom"/>
+
+        </LinearLayout>
+
+
 
     </LinearLayout>
 

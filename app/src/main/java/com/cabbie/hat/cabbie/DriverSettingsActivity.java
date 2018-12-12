@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -38,9 +40,11 @@ public class DriverSettingsActivity extends AppCompatActivity {
     EditText name, phone, password, car;
     ImageView profilePhoto;
 
+    private RadioGroup radioGroup;
+
     private Uri resultUri;
 
-    private String userId, customerName, customerPhoneNo, customerPassword, customerCar, profilePhotoUrl;
+    private String userId, customerName, customerPhoneNo, customerPassword, customerCar, profilePhotoUrl, service;
 
     private FirebaseAuth auth;
     private DatabaseReference driverDatabase;
@@ -59,6 +63,8 @@ public class DriverSettingsActivity extends AppCompatActivity {
         phone = (EditText) findViewById(R.id.phone);
         password = (EditText) findViewById(R.id.password);
         car = (EditText) findViewById(R.id.car);
+
+        radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
 
         auth = FirebaseAuth.getInstance();
         userId = auth.getCurrentUser().getUid();
@@ -119,6 +125,22 @@ public class DriverSettingsActivity extends AppCompatActivity {
                         customerCar = map.get("car").toString();
                         car.setText(customerCar);
                     }
+                    if(map.get("service") != null){
+                        service = map.get("service").toString();
+                        switch (service){
+                            case "Faisal Movers":
+                                radioGroup.check(R.id.faisalMovers);
+                                break;
+
+                            case "Jet":
+                                radioGroup.check(R.id.uberJet);
+                                break;
+
+                            case "Helicopter":
+                                radioGroup.check(R.id.uberHelicopter);
+                                break;
+                        }
+                    }
                     if(map.get("profileImageUrl") != null){
                         profilePhotoUrl = map.get("profileImageUrl").toString();
                         Glide.with(getApplication()).load(profilePhotoUrl).into(profilePhoto);
@@ -138,6 +160,14 @@ public class DriverSettingsActivity extends AppCompatActivity {
 
     private void saveUserInformation() {
 
+        int selectedButtonId = radioGroup.getCheckedRadioButtonId();
+
+        final RadioButton radioButton = (RadioButton) findViewById(selectedButtonId);
+
+        if(radioButton.getText() == null) return;
+
+        service = radioButton.getText().toString();
+
         customerName = name.getText().toString();
         customerPassword = password.getText().toString();
         customerPhoneNo = phone.getText().toString();
@@ -149,6 +179,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
         userInfo.put("password", customerPassword);
         userInfo.put("phoneNo", customerPhoneNo);
         userInfo.put("car", customerCar);
+        userInfo.put("service", service);
 
 
         driverDatabase.updateChildren(userInfo);

@@ -20,4 +20,8 @@
     <string name="settings">Settings</string>
     <string name="logout">Logout</string>
     <string name="destination">Destination: --</string>
+    <string name="horse">Horse</string>
+    <string name="jet">Jet</string>
+    <string name="helicopter">Helicopter</string>
+    <string name="faisal_movers">Faisal Movers</string>
 </resources>
