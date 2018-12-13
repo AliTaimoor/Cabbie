@@ -58,9 +58,13 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
     GoogleApiClient googleApiClient;
     Location lastLocation;
     LocationRequest locationRequest;
-    private Button logout, settings;
+    private Button logout, settings, rideStatus;
 
     SupportMapFragment mapFragment;
+
+    private int status = 0;
+    private String destination;
+    private LatLng destinationLatLng;
 
     private LinearLayout customerInfo;
     private ImageView customerProfileImage;
@@ -100,6 +104,29 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
 
         logout = (Button) findViewById(R.id.logout);
         settings = (Button) findViewById(R.id.settings);
+        rideStatus = (Button) findViewById(R.id.rideStatus);
+
+        rideStatus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch(status){
+                    case 1:
+                        status = 2;
+                        erasePolyLines();
+                        if(destinationLatLng.latitude != 0.0 && destinationLatLng.longitude != 0.0){
+                            getRoute(destinationLatLng);
+                        }
+                        rideStatus.setText("Ride Completed");
+                        break;
+
+                    case 2:
+                        endRide();
+                        break;
+
+
+                }
+            }
+        });
 
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,6 +152,40 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
 
     }
 
+    private void endRide() {
+
+        rideStatus.setText("Customer Picked");
+        erasePolyLines();
+
+        DatabaseReference driverRef= FirebaseDatabase.getInstance().getReference("Users").child("Drivers").child(userID).child("customerRequest");
+        driverRef.removeValue();
+
+
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("customerRequest");
+        GeoFire geoFire = new GeoFire(ref);
+
+        geoFire.removeLocation(customerId, new GeoFire.CompletionListener() {
+            @Override
+            public void onComplete(String key, DatabaseError error) {
+
+            }
+
+        });
+        customerId= "";
+
+        if(pickupLocationMarker != null) pickupLocationMarker.remove();
+
+        if(assignedCustomerPickUpLocationRefListener != null)
+            assignedCustomerPickUpLocationRef.removeEventListener(assignedCustomerPickUpLocationRefListener);
+
+        customerInfo.setVisibility(View.GONE);
+        customerName.setText("");
+        customerPhone.setText("");
+        customerDestination.setText("Destination: --");
+        customerProfileImage.setImageResource(R.drawable.profile);
+
+    }
+
     private void getAssignedCustomer(){
         String driverId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         final DatabaseReference assignedCustomerRef = FirebaseDatabase.getInstance().getReference().child("Users")
@@ -133,26 +194,13 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
+                    status = 1;
                     customerId = dataSnapshot.getValue().toString();
                     getAssignedCustomerPickUpLocation();
                     getAssignedCustomerDestination();
                     getAssignedCustomerInfo();
                 }else{
-                    erasePolyLines();
-                    customerId="";
-                    if (pickupLocationMarker != null){
-                        pickupLocationMarker.remove();
-                    }
-
-                    if(assignedCustomerPickUpLocationRefListener != null)
-                        assignedCustomerRef.removeEventListener(assignedCustomerPickUpLocationRefListener);
-
-                    customerInfo.setVisibility(View.GONE);
-                    customerName.setText("");
-                    customerPhone.setText("");
-                    customerDestination.setText("Destination: --");
-                    customerProfileImage.setImageResource(R.drawable.profile);
-
+                    endRide();
                 }
             }
 
@@ -166,16 +214,29 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
 
         String driverId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         final DatabaseReference assignedCustomerRef = FirebaseDatabase.getInstance().getReference().child("Users")
-                .child("Drivers").child(driverId).child("customerRequest").child("destination");
+                .child("Drivers").child(driverId).child("customerRequest");
         assignedCustomerRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    String destination = dataSnapshot.getValue().toString();
-                    customerDestination.setText("Destination: " + destination);
+                if(dataSnapshot.exists()) {
+                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+                    if(map.get("destination") != null){
+                        destination = map.get("destination").toString();
+                        customerDestination.setText("Destination: " + destination);
+                    }
+                    else{
+                        customerDestination.setText("Destination: --");
+                    }
 
-                }else{
-                    customerDestination.setText("Destination: --");
+                    Double destinationLat = 0.0;
+                    Double destinationLng = 0.0;
+                    if(map.get("destinationLat") != null){
+                        destinationLat = Double.valueOf(map.get("destinationLat").toString());
+                    }
+                    if(map.get("destinationLng") != null){
+                        destinationLng = Double.valueOf(map.get("destinationLng").toString());
+                    }
+                    destinationLatLng = new LatLng(destinationLat, destinationLng);
                 }
             }
 

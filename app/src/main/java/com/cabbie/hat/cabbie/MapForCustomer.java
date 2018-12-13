@@ -59,7 +59,8 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
     private GoogleMap mMap;
     GoogleApiClient googleApiClient;
     Location lastLocation;
-    LatLng pickUpLocation;
+    private LatLng pickUpLocation;
+    private LatLng destinationLatLng;
     LocationRequest locationRequest;
     private Button logout, request, settings;
     private int radius = 1;
@@ -95,6 +96,8 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
         setContentView(R.layout.activity_maps_customer);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+
+        destinationLatLng = new LatLng(0.0,0.0);
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
@@ -147,6 +150,7 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
             public void onPlaceSelected(Place place) {
                 // TODO: Get info about the selected place.
                 destination = place.getName().toString();
+                destinationLatLng = place.getLatLng();
             }
 
             @Override
@@ -159,44 +163,8 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
             @Override
             public void onClick(View view) {
                 if (requestBol){
-                    requestBol=false;
-                    geoQuery.removeAllListeners();
-                    driverLocationRef.removeEventListener(driverLocationRefListener);
 
-                    if (driverFoundId != null){
-                        DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Users").child("Drivers").child(driverFoundId).child("customerRequest");
-                        ref.removeValue();
-
-                        driverFoundId = null;
-                    }
-
-                    driverFound = false;
-                    radius = 1;
-                    userID=FirebaseAuth.getInstance().getCurrentUser().getUid();
-                    geoFire.removeLocation(userID, new GeoFire.CompletionListener() {
-                        @Override
-                        public void onComplete(String key, DatabaseError error) {
-
-                        }
-
-                    });
-
-
-                    if (driverMarker != null){
-                        driverMarker.remove();
-                    }
-
-                    if(pickUpMarker != null) pickUpMarker.remove();
-
-                    driverInfo.setVisibility(View.GONE);
-                    driverName.setText("");
-                    driverPhone.setText("");
-                    driverCar.setText("Ferrari la Ferrari");
-                    driverProfileImage.setImageResource(R.drawable.profile);
-
-                    radioGroup.setVisibility(View.VISIBLE);
-
-                    request.setText("Call Cabbie");
+                    endRide();
 
                 }
                 else{
@@ -274,7 +242,10 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
                                     HashMap map = new HashMap();
                                     map.put("customerRideId", customerId);
                                     map.put("destination", destination);
+                                    map.put("destinationLat", destinationLatLng.latitude);
+                                    map.put("destinationLng", destinationLatLng.longitude);
                                     driverRef.updateChildren(map);
+                                    getHasRideEnded();
                                     getDriverInfo();
                                     getDriverLocation();
 
@@ -356,6 +327,71 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
 
             }
         });
+
+    }
+
+    private DatabaseReference driveHasEndedRef;
+    private ValueEventListener driveHasEndedRefListener;
+
+    private void getHasRideEnded(){
+        String driverId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        driveHasEndedRef = FirebaseDatabase.getInstance().getReference().child("Users")
+                .child("Drivers").child(driverFoundId).child("customerRequest").child("customerRideId");
+        driveHasEndedRefListener = driveHasEndedRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.exists()) {
+                    endRide();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
+    private void endRide() {
+
+        requestBol=false;
+        geoQuery.removeAllListeners();
+        driverLocationRef.removeEventListener(driverLocationRefListener);
+        driveHasEndedRef.removeEventListener(driverLocationRefListener);
+
+        if (driverFoundId != null){
+            DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Users").child("Drivers").child(driverFoundId).child("customerRequest");
+            ref.removeValue();
+
+            driverFoundId = null;
+        }
+
+        driverFound = false;
+        radius = 1;
+        userID=FirebaseAuth.getInstance().getCurrentUser().getUid();
+        geoFire.removeLocation(userID, new GeoFire.CompletionListener() {
+            @Override
+            public void onComplete(String key, DatabaseError error) {
+
+            }
+
+        });
+
+
+        if (driverMarker != null){
+            driverMarker.remove();
+        }
+
+        if(pickUpMarker != null) pickUpMarker.remove();
+
+        driverInfo.setVisibility(View.GONE);
+        driverName.setText("");
+        driverPhone.setText("");
+        driverCar.setText("Ferrari la Ferrari");
+        driverProfileImage.setImageResource(R.drawable.profile);
+
+        radioGroup.setVisibility(View.VISIBLE);
+
+        request.setText("Call Cabbie");
 
     }
 
