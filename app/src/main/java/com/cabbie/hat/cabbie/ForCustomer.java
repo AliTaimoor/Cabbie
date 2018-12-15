@@ -35,11 +35,6 @@ public class ForCustomer extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder().setDefaultFontPath("fonts/Arkhip_font.ttf")
-                .setFontAttrId(R.attr.fontPath).build());
-
-        setContentView(R.layout.activity_for_customer);
 
         if(FirebaseAuth.getInstance().getCurrentUser() != null){
             startActivity(new Intent(ForCustomer.this, MapForCustomer.class));
@@ -47,7 +42,11 @@ public class ForCustomer extends AppCompatActivity {
             return;
         }
 
+        super.onCreate(savedInstanceState);
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder().setDefaultFontPath("fonts/Arkhip_font.ttf")
+                .setFontAttrId(R.attr.fontPath).build());
 
+        setContentView(R.layout.activity_for_customer);
 
         auth = FirebaseAuth.getInstance();
 

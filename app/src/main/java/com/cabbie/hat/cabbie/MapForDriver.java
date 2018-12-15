@@ -47,6 +47,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -120,6 +121,7 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
                         break;
 
                     case 2:
+                        recordRide();
                         endRide();
                         break;
 
@@ -149,6 +151,26 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
         });
 
         getAssignedCustomer();
+
+    }
+
+    private void recordRide() {
+
+        DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userID).child("History");
+        DatabaseReference customerRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Customers").child(customerId).child("History");
+        DatabaseReference historyRef = FirebaseDatabase.getInstance().getReference().child("History");
+
+        String requestId = historyRef.push().getKey();
+
+        driverRef.child(requestId).setValue(true);
+        customerRef.child(requestId).setValue(true);
+
+        HashMap hashMap = new HashMap();
+        hashMap.put("driverId", userID);
+        hashMap.put("customerId", customerId);
+        hashMap.put("rating", 0);
+
+        historyRef.child(requestId).updateChildren(hashMap);
 
     }
 

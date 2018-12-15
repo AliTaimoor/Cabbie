@@ -21,7 +21,8 @@
     <string name="logout">Logout</string>
     <string name="destination">Destination: --</string>
     <string name="horse">Horse</string>
-    <string name="jet">Jet</string>
-    <string name="helicopter">Helicopter</string>
-    <string name="faisal_movers">Faisal Movers</string>
+    <string name="CabPlus">Jet</string>
+    <string name="CabZplus">Helicopter</string>
+    <string name="Cab">Faisal Movers</string>
+    <string name="history">history</string>
 </resources>

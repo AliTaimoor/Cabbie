@@ -57,19 +57,19 @@
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/faisal_movers"
+            android:text="@string/Cab"
             android:id="@+id/faisalMovers"/>
 
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/jet"
+            android:text="@string/CabPlus"
             android:id="@+id/uberJet"/>
 
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/helicopter"
+            android:text="@string/CabZplus"
             android:id="@+id/uberHelicopter"/>
         
     </RadioGroup>

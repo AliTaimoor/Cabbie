@@ -65,6 +65,7 @@ public class DriverSettingsActivity extends AppCompatActivity {
         car = (EditText) findViewById(R.id.car);
 
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+        radioGroup.check(R.id.faisalMovers);
 
         auth = FirebaseAuth.getInstance();
         userId = auth.getCurrentUser().getUid();
@@ -128,15 +129,15 @@ public class DriverSettingsActivity extends AppCompatActivity {
                     if(map.get("service") != null){
                         service = map.get("service").toString();
                         switch (service){
-                            case "Faisal Movers":
+                            case "Cab":
                                 radioGroup.check(R.id.faisalMovers);
                                 break;
 
-                            case "Jet":
+                            case "CabPlus":
                                 radioGroup.check(R.id.uberJet);
                                 break;
 
-                            case "Helicopter":
+                            case "CabZplus":
                                 radioGroup.check(R.id.uberHelicopter);
                                 break;
                         }

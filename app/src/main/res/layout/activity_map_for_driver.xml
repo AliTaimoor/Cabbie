@@ -10,6 +10,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@color/registerButton"
         android:id="@+id/logout"
         android:text="@string/logout"/>
 
@@ -17,6 +18,7 @@
         android:layout_gravity="top|end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@color/registerButton"
         android:id="@+id/settings"
         android:text="@string/settings"/>
 
@@ -85,6 +87,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Customer Picked"
+            android:textColor="@color/colorPrimaryDark"
+            android:background="@color/registerButton"
             android:id="@+id/rideStatus"/>
 
     </LinearLayout>

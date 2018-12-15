@@ -62,7 +62,7 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
     private LatLng pickUpLocation;
     private LatLng destinationLatLng;
     LocationRequest locationRequest;
-    private Button logout, request, settings;
+    private Button logout, request, settings, mHistory;
     private int radius = 1;
     private boolean driverFound = false;
     private String driverFoundId;
@@ -118,6 +118,7 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
         logout = (Button) findViewById(R.id.logout);
         request = (Button) findViewById(R.id.request);
         settings = (Button) findViewById(R.id.settings);
+        mHistory = (Button) findViewById(R.id.history);
 
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
         radioGroup.check(R.id.faisalMovers);
@@ -131,6 +132,15 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
                 finish();
                 return;
 
+            }
+        });
+
+        mHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MapForCustomer.this, HistoryActivity.class);
+                startActivity(intent);
+                return;
             }
         });
 

@@ -20,23 +20,43 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/buttons"
+            android:orientation="horizontal">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/logout"
-            android:text="@string/logout"/>
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@color/registerButton"
+                android:id="@+id/logout"
+                android:text="@string/logout"/>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_gravity="top|end"
-            android:id="@+id/settings"
-            android:text="@string/settings"/>
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/history"
+                android:background="@color/registerButton"
+                android:text="@string/history"/>
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="top|end"
+                android:background="@color/registerButton"
+                android:id="@+id/settings"
+                android:text="@string/settings"/>
+
+        </LinearLayout>
         
         <android.support.v7.widget.CardView
-            android:layout_below="@+id/settings"
+            android:layout_below="@+id/buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="20sp"
@@ -60,12 +80,13 @@
         android:layout_gravity="bottom">
 
 
+
         <LinearLayout
             android:id="@+id/driverInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:background="@android:color/white"
+            android:background="@color/registerButton"
             android:orientation="horizontal"
             android:visibility="gone">
 
@@ -87,6 +108,7 @@
                     android:id="@+id/driverName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/cardview_light_background"
                     android:paddingTop="20sp"
                     android:paddingBottom="10sp" />
 
@@ -94,6 +116,7 @@
                     android:id="@+id/driverPhone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/cardview_light_background"
                     android:paddingTop="20sp"
                     android:paddingBottom="10sp" />
 
@@ -101,6 +124,7 @@
                     android:id="@+id/driverCar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/cardview_light_background"
                     android:paddingTop="20sp"
                     android:paddingBottom="10sp" />
 
@@ -112,7 +136,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/white"
+            android:background="@color/signInButton"
             android:orientation="vertical"
             android:layout_gravity="bottom">
 
@@ -125,19 +149,22 @@
                 <RadioButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/faisal_movers"
+                    android:textColor="@color/cardview_light_background"
+                    android:text="@string/Cab"
                     android:id="@+id/faisalMovers"/>
 
                 <RadioButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/jet"
+                    android:textColor="@color/cardview_light_background"
+                    android:text="@string/CabPlus"
                     android:id="@+id/uberJet"/>
 
                 <RadioButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/helicopter"
+                    android:text="@string/CabZplus"
+                    android:textColor="@color/cardview_light_background"
                     android:id="@+id/uberHelicopter"/>
 
             </RadioGroup>
