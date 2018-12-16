@@ -36,6 +36,8 @@
         android:layout_gravity="bottom"
         android:background="@android:color/white"
         android:orientation="vertical"
+        android:elevation="1dp"
+        android:translationZ="1dp"
         android:visibility="gone">
 
         <LinearLayout

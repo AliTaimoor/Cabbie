@@ -65,7 +65,7 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
 
     private int status = 0;
     private String destination;
-    private LatLng destinationLatLng;
+    private LatLng destinationLatLng, pickUpLatLng;
 
     private LinearLayout customerInfo;
     private ImageView customerProfileImage;
@@ -170,6 +170,11 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
         hashMap.put("customer", customerId);
         hashMap.put("rating", 0);
         hashMap.put("timestamp", getCurrentTimeStamp());
+        hashMap.put("destination", destination);
+        hashMap.put("location/from/lat", pickUpLatLng.latitude);
+        hashMap.put("location/from/lng", pickUpLatLng.longitude);
+        hashMap.put("location/to/lat", destinationLatLng.latitude);
+        hashMap.put("location/to/lng", destinationLatLng.longitude);
 
         historyRef.child(requestId).updateChildren(hashMap);
 
@@ -302,7 +307,7 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
                         locationLng = Double.parseDouble(map.get(1).toString());
                     }
 
-                    LatLng pickUpLatLng = new LatLng(locationLat, locationLng);
+                    pickUpLatLng = new LatLng(locationLat, locationLng);
 
 
                     pickupLocationMarker = mMap.addMarker(new MarkerOptions().position(pickUpLatLng).title("Pick Up Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.wait)));
