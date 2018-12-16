@@ -166,12 +166,18 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
         customerRef.child(requestId).setValue(true);
 
         HashMap hashMap = new HashMap();
-        hashMap.put("driverId", userID);
-        hashMap.put("customerId", customerId);
+        hashMap.put("driver", userID);
+        hashMap.put("customer", customerId);
         hashMap.put("rating", 0);
+        hashMap.put("timestamp", getCurrentTimeStamp());
 
         historyRef.child(requestId).updateChildren(hashMap);
 
+    }
+
+    private Long getCurrentTimeStamp() {
+        Long timestamp = System.currentTimeMillis()/1000;
+        return timestamp;
     }
 
     private void endRide() {
