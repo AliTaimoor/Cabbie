@@ -34,6 +34,11 @@ public class ForCustomer extends AppCompatActivity {
     FirebaseAuth auth;
 
     @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         if(FirebaseAuth.getInstance().getCurrentUser() != null){

@@ -12,8 +12,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,6 +63,10 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
     LocationRequest locationRequest;
     private Button logout, settings, rideStatus;
 
+    private float rideDistance;
+
+    private Switch mWorkingSwitch;
+
     SupportMapFragment mapFragment;
 
     private int status = 0;
@@ -107,6 +113,18 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
         settings = (Button) findViewById(R.id.settings);
         rideStatus = (Button) findViewById(R.id.rideStatus);
 
+        mWorkingSwitch = (Switch) findViewById(R.id.workingSwitch);
+        mWorkingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    connectDriver();
+                }else{
+                    disconnectDriver();
+                }
+            }
+        });
+
         rideStatus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -122,6 +140,7 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
 
                     case 2:
                         recordRide();
+                        Toast.makeText(getApplicationContext(), "Fare: " + String.valueOf(Double.valueOf(rideDistance)*20), Toast.LENGTH_SHORT).show();
                         endRide();
                         break;
 
@@ -154,6 +173,27 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
 
     }
 
+    private void connectDriver(){
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MapForDriver.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+    }
+
+    private void disconnectDriver(){
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Available Drivers");
+
+        GeoFire geoFire = new GeoFire(ref);
+        geoFire.removeLocation(userId, new GeoFire.CompletionListener() {
+            @Override
+            public void onComplete(String key, DatabaseError error) {
+
+            }
+        });
+    }
+
     private void recordRide() {
 
         DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userID).child("History");
@@ -175,6 +215,7 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
         hashMap.put("location/from/lng", pickUpLatLng.longitude);
         hashMap.put("location/to/lat", destinationLatLng.latitude);
         hashMap.put("location/to/lng", destinationLatLng.longitude);
+        hashMap.put("distance", rideDistance);
 
         historyRef.child(requestId).updateChildren(hashMap);
 
@@ -205,6 +246,7 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
 
         });
         customerId= "";
+        rideDistance = 0;
 
         if(pickupLocationMarker != null) pickupLocationMarker.remove();
 
@@ -327,14 +369,18 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
 
     private void getRoute(LatLng pickUpLatLng) {
 
-        Routing routing = new Routing.Builder()
-                .key("AIzaSyDuOuUg-EpqimBYVlZLbCW7YgtWOoMBtXY")
-                .travelMode(AbstractRouting.TravelMode.DRIVING)
-                .withListener(this)
-                .alternativeRoutes(false)
-                .waypoints(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), pickUpLatLng)
-                .build();
-        routing.execute();
+        if(pickUpLatLng != null && lastLocation != null) {
+
+            Routing routing = new Routing.Builder()
+                    .key("AIzaSyDuOuUg-EpqimBYVlZLbCW7YgtWOoMBtXY")
+                    .travelMode(AbstractRouting.TravelMode.DRIVING)
+                    .withListener(this)
+                    .alternativeRoutes(false)
+                    .waypoints(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), pickUpLatLng)
+                    .build();
+            routing.execute();
+
+        }
 
     }
 
@@ -404,6 +450,10 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
 
         if(getApplicationContext() != null) {
 
+            if(!customerId.equals("")){
+                rideDistance+= lastLocation.distanceTo(location)/1000;
+            }
+
             lastLocation = location;
 
             LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -470,13 +520,6 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(MapForDriver.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
-
-        }
-        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 
     @Override

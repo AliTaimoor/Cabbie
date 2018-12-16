@@ -42,6 +42,8 @@ public class ForDriver extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        startService(new Intent(ForDriver.this, onAppKilled.class));
+
         if(FirebaseAuth.getInstance().getCurrentUser() != null){
             startActivity(new Intent(ForDriver.this, MapForDriver.class));
             finish();

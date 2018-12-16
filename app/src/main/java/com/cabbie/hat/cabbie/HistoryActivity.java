@@ -25,6 +25,10 @@ public class HistoryActivity extends AppCompatActivity {
     private RecyclerView.Adapter mHistoryAdapter;
     private RecyclerView.LayoutManager mHistoryLayoutManager;
 
+    private ArrayList resultsHistory = new ArrayList<HistoryObject>();
+
+    private long counter = 0, dataSnapShotSize = 0;
+
     private String customerOrDriver, userId;
 
     @Override
@@ -48,12 +52,13 @@ public class HistoryActivity extends AppCompatActivity {
 
     }
 
-    private void getUserHistoryIds() {
-        DatabaseReference userHistoryDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(customerOrDriver).child(userId).child("history");
+    private synchronized void getUserHistoryIds() {
+        DatabaseReference userHistoryDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(customerOrDriver).child(userId).child("History");
         userHistoryDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
+                    dataSnapShotSize = dataSnapshot.getChildrenCount();
                     for(DataSnapshot history : dataSnapshot.getChildren()){
                         FetchRideInformation(history.getKey());
                     }
@@ -64,8 +69,8 @@ public class HistoryActivity extends AppCompatActivity {
             }
         });
     }
-    private void FetchRideInformation(String rideKey) {
-        DatabaseReference historyDatabase = FirebaseDatabase.getInstance().getReference().child("history").child(rideKey);
+    private synchronized void FetchRideInformation(String rideKey) {
+        DatabaseReference historyDatabase = FirebaseDatabase.getInstance().getReference().child("History").child(rideKey);
         historyDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -79,6 +84,12 @@ public class HistoryActivity extends AppCompatActivity {
                     }
                     HistoryObject obj = new HistoryObject(rideId, getDate(timestamp));
                     resultsHistory.add(obj);
+                    counter++;
+                    if(counter == dataSnapShotSize){
+                        counter = 0;
+                        dataSnapShotSize = 0;
+                        mHistoryAdapter.notifyDataSetChanged();
+                    }
                 }
             }
 
@@ -88,7 +99,7 @@ public class HistoryActivity extends AppCompatActivity {
         });
     }
 
-    private String getDate(Long timeStamp) {
+    private synchronized String getDate(Long timeStamp) {
 
         Calendar cal = Calendar.getInstance(Locale.getDefault());
         cal.setTimeInMillis(timeStamp*1000);
@@ -97,8 +108,7 @@ public class HistoryActivity extends AppCompatActivity {
 
     }
 
-    private ArrayList resultsHistory = new ArrayList<HistoryObject>();
-    private ArrayList<HistoryObject> getDataSetHistory() {
+    private synchronized ArrayList<HistoryObject> getDataSetHistory() {
         return resultsHistory;
     }
 }

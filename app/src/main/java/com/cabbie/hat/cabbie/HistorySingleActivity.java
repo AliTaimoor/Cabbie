@@ -1,9 +1,13 @@
 package com.cabbie.hat.cabbie;
 
+import android.annotation.SuppressLint;
+import android.media.Rating;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,10 +17,15 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,6 +43,7 @@ import java.util.Map;
 
 
 public class HistorySingleActivity extends AppCompatActivity implements OnMapReadyCallback, RoutingListener {
+
     private String rideId, currentUserId, customerId, driverId, userDriverOrCustomer;
 
     private TextView rideLocation;
@@ -41,6 +51,11 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
     private TextView rideDate;
     private TextView userName;
     private TextView userPhone;
+
+    private String distance;
+    private Double rideFare;
+
+    private RatingBar mRatingBar;
 
     private ImageView userImage;
 
@@ -71,17 +86,20 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
         userName = (TextView) findViewById(R.id.userName);
         userPhone = (TextView) findViewById(R.id.userPhone);
 
+        mRatingBar = (RatingBar) findViewById(R.id.ratingBar);
+
         userImage = (ImageView) findViewById(R.id.userImage);
 
         currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        historyRideInfoDb = FirebaseDatabase.getInstance().getReference().child("history").child(rideId);
+        historyRideInfoDb = FirebaseDatabase.getInstance().getReference().child("History").child(rideId);
         getRideInformation();
 
     }
 
     private void getRideInformation() {
         historyRideInfoDb.addListenerForSingleValueEvent(new ValueEventListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
@@ -98,12 +116,24 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
                             if(!driverId.equals(currentUserId)){
                                 userDriverOrCustomer = "Customers";
                                 getUserInformation("Drivers", driverId);
+                                displayCustomerRelatedObjects();
                             }
                         }
                         if (child.getKey().equals("timestamp")){
                             rideDate.setText(getDate(Long.valueOf(child.getValue().toString())));
 
                         }
+
+                        if (child.getKey().equals("rating")){
+                            mRatingBar.setRating(Integer.valueOf(child.getValue().toString()));
+                        }
+
+                        if (child.getKey().equals("distance")){
+                            distance = child.getValue().toString();
+                            rideDistance.setText(distance.substring(0, Math.min(distance.length(), 5)) + " KM");
+                            rideFare = Double.valueOf(distance)*20;
+                        }
+
                         if (child.getKey().equals("destination")){
                             rideLocation.setText(child.getValue().toString());
                         }
@@ -123,6 +153,21 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
         });
     }
 
+    private void displayCustomerRelatedObjects() {
+
+        mRatingBar.setVisibility(View.VISIBLE);
+
+        mRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
+                historyRideInfoDb.child("rating").setValue(v);
+                DatabaseReference mDriverRatingDb = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverId).child("rating");
+                mDriverRatingDb.child(rideId).setValue(v);
+            }
+        });
+
+    }
+
     private void getUserInformation(String driverOrCustomer, String otherUserId) {
         DatabaseReference mOtherUserDb = FirebaseDatabase.getInstance().getReference().child("Users").child(driverOrCustomer).child(otherUserId);
         mOtherUserDb.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -133,8 +178,8 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
                     if(map.get("name")!=null){
                         userName.setText(map.get("name").toString());
                     }
-                    if(map.get("phone")!=null){
-                        userPhone.setText(map.get("phone").toString());
+                    if(map.get("phoneNo")!=null){
+                        userPhone.setText(map.get("phoneNo").toString());
                     }
                     if(map.get("profileImageUrl")!=null){;
                         Glide.with(getApplication()).load(map.get("profileImageUrl").toString()).into(userImage);
@@ -188,6 +233,21 @@ public class HistorySingleActivity extends AppCompatActivity implements OnMapRea
     @Override
     public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
 
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        builder.include(pickupLatLng);
+        builder.include(destinationLatLng);
+        LatLngBounds bounds = builder.build();
+
+        int width = getResources().getDisplayMetrics().widthPixels;
+
+        int padding = (int) (width*0.2);
+
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+
+        mMap.animateCamera(cameraUpdate);
+
+        mMap.addMarker(new MarkerOptions().position(pickupLatLng).title("PickUp Location"));
+        mMap.addMarker(new MarkerOptions().position(destinationLatLng).title("Destination"));
 
         if(polylines.size()>0) {
             for (Polyline poly : polylines) {

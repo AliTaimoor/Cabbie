@@ -5,19 +5,18 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,6 +69,8 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
     private Marker driverMarker;
     private Marker pickUpMarker;
 
+    private RatingBar mRatingBar;
+
     SupportMapFragment mapFragment;
 
     private RadioGroup radioGroup;
@@ -114,6 +115,8 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
         driverName = (TextView) findViewById(R.id.driverName);
         driverPhone = (TextView) findViewById(R.id.driverPhone);
         driverCar = (TextView) findViewById(R.id.driverCar);
+
+        mRatingBar = (RatingBar) findViewById(R.id.ratingBar);
 
         logout = (Button) findViewById(R.id.logout);
         request = (Button) findViewById(R.id.request);
@@ -327,6 +330,19 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
 
                     if(map.get("profileImageUrl") != null){
                         Glide.with(getApplication()).load(map.get("profileImageUrl").toString()).into(driverProfileImage);
+                    }
+
+                    int ratingSum = 0;
+                    float ratingsTotal = 0;
+                    float ratingsAvg = 0;
+                    for (DataSnapshot child : dataSnapshot.child("rating").getChildren()) {
+                        ratingSum = ratingSum + Integer.valueOf(child.getValue().toString());
+                        ratingsTotal++;
+                    }
+
+                    if(ratingsTotal!= 0){
+                        ratingsAvg = ratingSum/ratingsTotal;
+                        mRatingBar.setRating(ratingsAvg);
                     }
 
                 }

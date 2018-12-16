@@ -8,7 +8,11 @@ public class HistoryObject {
         this.rideId = rideId;
         this.time = time;
     }
-    public String getRideId(){return rideId;}
+
+    public String getRideId(){
+        return rideId;
+    }
+
     public void setRideId(String rideId) {
         this.rideId = rideId;
     }
