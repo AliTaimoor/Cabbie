@@ -25,4 +25,5 @@
     <string name="CabZplus">Helicopter</string>
     <string name="Cab">Faisal Movers</string>
     <string name="history">history</string>
+    <string name="title_activity_history_single">Map</string>
 </resources>
