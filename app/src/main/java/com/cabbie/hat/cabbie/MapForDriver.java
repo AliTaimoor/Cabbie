@@ -119,6 +119,7 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
                     connectDriver();
+                    getAssignedCustomer();
                 }else{
                     disconnectDriver();
                 }
@@ -169,7 +170,7 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
             }
         });
 
-        getAssignedCustomer();
+
 
     }
 
@@ -182,11 +183,11 @@ public class MapForDriver extends FragmentActivity implements RoutingListener,On
 
     private void disconnectDriver(){
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Available Drivers");
 
         GeoFire geoFire = new GeoFire(ref);
-        geoFire.removeLocation(userId, new GeoFire.CompletionListener() {
+        geoFire.removeLocation(userID, new GeoFire.CompletionListener() {
             @Override
             public void onComplete(String key, DatabaseError error) {
 

@@ -51,6 +51,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class MapForCustomer extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
@@ -64,10 +65,12 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
     private Button logout, request, settings, mHistory;
     private int radius = 1;
     private boolean driverFound = false;
-    private String driverFoundId;
+    private String driverFoundId = null;
     private String destination, requestedService;
     private Marker driverMarker;
     private Marker pickUpMarker;
+
+    long startTime;
 
     private RatingBar mRatingBar;
 
@@ -195,6 +198,8 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
 
                     requestBol=true;
 
+                    startTime = System.nanoTime();
+
                     userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
                     geoFire.setLocation(userID, new GeoLocation(lastLocation.getLatitude(), lastLocation.getLongitude()), new GeoFire.CompletionListener() {
@@ -292,6 +297,13 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
             @Override
             public void onGeoQueryReady() {
                 if(!driverFound){
+
+                    if(TimeUnit.NANOSECONDS.toMinutes(System.nanoTime() - startTime) >= 1) {
+                        endRide();
+                        Toast.makeText(getApplicationContext(), "Sorry! Cabbie service is currently unavailable at your location", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
                     radius++;
                     getClosestDriver();
                 }
@@ -382,10 +394,11 @@ public class MapForCustomer extends FragmentActivity implements OnMapReadyCallba
 
         requestBol=false;
         geoQuery.removeAllListeners();
-        driverLocationRef.removeEventListener(driverLocationRefListener);
-        driveHasEndedRef.removeEventListener(driverLocationRefListener);
 
         if (driverFoundId != null){
+            driverLocationRef.removeEventListener(driverLocationRefListener);
+            driveHasEndedRef.removeEventListener(driverLocationRefListener);
+
             DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Users").child("Drivers").child(driverFoundId).child("customerRequest");
             ref.removeValue();
 
